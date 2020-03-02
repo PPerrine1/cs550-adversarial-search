@@ -27,13 +27,16 @@ The red and black variables should be instantiated to strategy classes (not inst
 
 Within Game, you can create instances of your strategy, e.g.:
 - redplayer = red(‘r’, checkerboard.CheckerBoard, maxplies)
+
 which creates an instance of whatever strategy you passed in as red and then take turns calling play on the different strategies with the evolving game board.
 
 Hints:  This is a rather complicated program and it is easy to make mistakes.
 
-Design for testability and make sure that small components of your algorithm are working.  There are a number of predefined board configurations in boardlibrary.  It is strongly suggested that you work through some of these by hand.  Suggestions:
+Design for testability and make sure that small components of your algorithm are working.  There are a number of predefined board configurations in boardlibrary.  It is strongly suggested that you work through some of these by hand.  
+### Suggestions:
 * Try your board utility function on known boards.  Several are provided for you in the dictionary boardlibrary.boards.  See the unit tests in checkerboard.py for an example of accessing several board configurations. You are free to add to these.
 * Add debugging statements and make sure that that your alpha-beta cutoffs work correctly on small examples.
 
-**To turn in:**
+## To turn in:
+
 Submit checkers.py, ai.py and any other routines that you create.  As always, turn in a print out and electronic versions. You may not modify the checkerboard.py class as it will prevent the grader from running your code, but if there is additional functionality that you wish to add, you are welcome to write functions that compute it, but remember that we will evaluate your ai.strategy with respect to an implementation of game that works with the stock code.
