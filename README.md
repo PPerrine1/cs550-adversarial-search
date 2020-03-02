@@ -30,7 +30,7 @@ Within Game, you can create instances of your strategy, e.g.:
 
 which creates an instance of whatever strategy you passed in as red and then take turns calling play on the different strategies with the evolving game board.
 
-Hints:  This is a rather complicated program and it is easy to make mistakes.
+Hints:  This is a rather complicated program and it is easy to make mistakes. To get an A+ we can write a GUI...
 
 Design for testability and make sure that small components of your algorithm are working.  There are a number of predefined board configurations in boardlibrary.  It is strongly suggested that you work through some of these by hand.  
 ### Suggestions:
