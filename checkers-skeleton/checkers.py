@@ -1,6 +1,6 @@
-'''
+"""
 @author: mroch
-'''
+"""
 
 # Game representation and mechanics
 import checkerboard
@@ -20,21 +20,21 @@ import checkerboard
 # and 3.8.  If you're not using one of these, it won't work.
 import imp
 import sys
+
 major = sys.version_info[0]
 minor = sys.version_info[1]
 modpath = "__pycache__/tonto.cpython-{}{}.pyc".format(major, minor)
 tonto = imp.load_compiled("tonto", modpath)
 
-
-# human - human player, prompts for input    
+# human - human player, prompts for input
 import human
 
-import boardlibrary # might be useful for debugging
+import boardlibrary  # might be useful for debugging
 
 from timer import Timer
-        
 
-def Game(red=human.Strategy, black=tonto.Strategy, 
+
+def Game(red=human.Strategy, black=tonto.Strategy,
          maxplies=10, init=None, verbose=True, firstmove=0):
     """Game(red, black, maxplies, init, verbose, turn)
     Start a game of checkers
@@ -49,22 +49,10 @@ def Game(red=human.Strategy, black=tonto.Strategy,
     # e.g. black('b', checkerboard.CheckerBoard, maxplies)
 
     raise NotImplemented
-    
-            
+
+
 if __name__ == "__main__":
-    #Game(init=boardlibrary.boards["multihop"])
-    #Game(init=boardlibrary.boards["StrategyTest1"])
-    #Game(init=boardlibrary.boards["EndGame1"], firstmove = 1)
+    # Game(init=boardlibrary.boards["multihop"])
+    # Game(init=boardlibrary.boards["StrategyTest1"])
+    # Game(init=boardlibrary.boards["EndGame1"], firstmove = 1)
     Game()
-        
-        
-        
-
-
-        
-                    
-            
-        
-
-    
-    

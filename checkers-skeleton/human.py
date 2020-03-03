@@ -1,18 +1,19 @@
-'''
+"""
 Created on Mar 1, 2015
 
 @author: mroch
-'''
+"""
 
-import platform   # operating system platform
+import platform  # operating system platform
 
 import checkerboard
 import charIO  # character IO
 
 import abstractstrategy
 
+
 class Strategy(abstractstrategy.Strategy):
-    "Human player"
+    """Human player"""
 
     def play(self, board, hints=True):
         """"play - make a move
@@ -30,43 +31,42 @@ class Strategy(abstractstrategy.Strategy):
         to emulate a terminal in console output.
         """
         actions = board.get_actions(self.maxplayer)
-        
+
         forfeit = "F"  # Human choice for forfeiting
-        
+
         if actions:
             if hints:
                 # Show actions labeled a, b, c, etc.
                 letter_a = ord('a')  # get encoding for "a"
-                letters = [chr(letter_a + x) for x in range(len(actions))]            
+                letters = [chr(letter_a + x) for x in range(len(actions))]
                 for (action, letter) in zip(actions, letters):
                     print("%s: %s" % (letter, board.get_action_str(action)))
 
                 # Read the players choice and convert to action        
-                print("%s move, choose by letter or F to forfeit: "%(self.maxplayer), end=' ')
-                letters.append(forfeit)    
+                print("%s move, choose by letter or F to forfeit: " % (self.maxplayer), end=' ')
+                letters.append(forfeit)
                 choice = charIO.getch()
                 print(choice)
                 while choice not in letters:
                     choice = charIO.getch()
-                
+
                 # Pick action (None if weak-minded human forfeited)
-                action = actions[ord(choice)-letter_a] if choice != forfeit else None
-                
+                action = actions[ord(choice) - letter_a] if choice != forfeit else None
+
             else:
-                raise NotImplementedError(" ".join([                    
+                raise NotImplementedError(" ".join([
                     "Write an input routine/GUI if you have too much",
                     "time on your hands.  Be sure to verify that the",
                     "resulting action is in the list of actions"]))
         else:
             action = []  # No possible actions
-       
+
         # Execute human move
         if not action:
             newboard = board
         else:
             newboard = board.move(action)
-        return (newboard, action)
-    
+        return newboard, action
+
     def utility(self, state):
         pass  # Human uses gray matter here...
-    
