@@ -31,7 +31,7 @@ import human
 
 import boardlibrary  # might be useful for debugging
 
-from timer import Timer
+from time import time
 
 
 def Game(red=human.Strategy, black=tonto.Strategy,
@@ -47,7 +47,8 @@ def Game(red=human.Strategy, black=tonto.Strategy,
 
     # Don't forget to create instances of your strategy,
     # e.g. black('b', checkerboard.CheckerBoard, maxplies)
-
+    boardlibrary.init_boards()
+    t = time()
     raise NotImplemented
 
 
