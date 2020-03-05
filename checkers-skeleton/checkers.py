@@ -49,7 +49,13 @@ def Game(red=human.Strategy, black=tonto.Strategy,
     # e.g. black('b', checkerboard.CheckerBoard, maxplies)
     boardlibrary.init_boards()
     t = time()
-    raise NotImplemented
+
+    game_board = checkerboard.CheckerBoard()
+
+    if game_board.is_terminal():
+        print("Can play")
+
+    #raise NotImplementedError("Needs a game to play")
 
 
 if __name__ == "__main__":

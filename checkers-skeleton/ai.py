@@ -1,5 +1,5 @@
 """
-@author: nmill
+@author: nmill, pperr
 """
 
 import abstractstrategy
@@ -12,11 +12,12 @@ class Strategy(abstractstrategy.Strategy):
         # TODO: Subclass of Strategy
 
         raise NotImplemented
+    
+    def AlphaBetaMinimax():
+        # TODO: Alpha-beta pruning minimax search, separate function or class
+        raise NotImplemented
 
 
-class AlphaBetaMinimax:
-    # TODO: Alpha-beta pruning minimax search, separate function or class
-    raise NotImplemented
 
 
 """From ReadMe:
