@@ -12,7 +12,7 @@ You are to write a program that plays checkers. The following are provided for y
 
 **WCDF_Revised_Rules.doc** – Rules of checkers. The checkerboard class implements most rules including draws.  It does not implement the draw on entering the same state 3 times (rule 1.32.1).
 
-**checkers.py** – A skeleton for playing a game.
+***** **checkers.py** – A skeleton for playing a game.
 
 **tonto** - A compiled strategy called Tonto is available. Source code is not provided, but compiled versions for Python 3.6 through 3.8 are in the __pycache__ directory. See the checkers.py skeleton for details on how to import it.  You can use it to play against your strategy.  It isn’t too smart...
 
