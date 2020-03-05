@@ -31,7 +31,7 @@ import human
 
 import boardlibrary  # might be useful for debugging
 
-from time import time
+from timer import Timer
 
 
 def Game(red=human.Strategy, black=tonto.Strategy,
