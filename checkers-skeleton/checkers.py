@@ -28,6 +28,7 @@ tonto = imp.load_compiled("tonto", modpath)
 
 # human - human player, prompts for input
 import human
+import ai
 
 import boardlibrary  # might be useful for debugging
 
@@ -52,7 +53,7 @@ def Game(red=human.Strategy, black=tonto.Strategy,
 
     game_board = checkerboard.CheckerBoard()
 
-    red = human.Strategy('r', game_board, maxplies)
+    red = ai.Strategy('r', game_board, maxplies)
     black = tonto.Strategy('b', game_board, maxplies)
 
     while not game_board.is_terminal()[0]:

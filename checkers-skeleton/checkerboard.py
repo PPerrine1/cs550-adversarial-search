@@ -222,7 +222,6 @@ class CheckerBoard(Board):
 
     def disttoking(self, player, row):
         """disttoking - how many rows from king position for player given row"""
-        # TODO: USEFUL for heuristic
         # find row offset of any legal move for a pawn,
         # that is, which way does the pawn move?
         direction = self.pawnmoves[player][0][0]

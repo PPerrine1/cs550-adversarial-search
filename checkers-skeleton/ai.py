@@ -14,54 +14,55 @@ class Strategy(abstractstrategy.Strategy):
 
         if actions:
             currNode = Node(board)
-            while currNode.depth <= self.maxplies:
-                currNode = Node(currNode.state, currNode, self.alpha_beta_search(currNode))
+            ai_action = self.alpha_beta_search(currNode)[0]
         else:
-            action = []  # No possible actions
+            ai_action = []  # No possible actions
 
         # Execute AI move
-        if not actions:
+        if not ai_action:
             newboard = board
+            print("AI not making move")
         else:
-            newboard = board.move(actions)
-        return newboard, action
+            newboard = board.move(ai_action)
+            print("AI making move:",ai_action[0])
+        return newboard, ai_action
 
-    def utility(self, state):
+    def utility(self, state, player):
         """state is a Checkerboard"""
         # minimize distance to kings
         # maximize number of pawns and kings
         # num Kings is more important than num Pawns
 
-        numMaxPawns = state.get_PawnsN()[self.maxplayer]
-        numMaxKings = state.get_KingsN()[self.maxplayer]
+        numMaxPawns = state.get_pawnsN()[0]
+        numMaxKings = state.get_kingsN()[0]
+        totalMaxDistToKing = sum([state.disttoking(self.maxplayer, numRow) for numRow in range(1, 7)])
 
-        totalMaxDistToKing = sum([state.distoking(self.maxplayer, numRow) for numRow in range(0, state.edgesize - 1)])
-
-        numMinPawns = state.get_PawnsN()[self.minplayer]
-        numMinKings = state.get_KingsN()[self.minplayer]
-
-        totalMinDistToKing = sum([state.distoking(self.minplayer, numRow) for numRow in range(0, state.edgesize - 1)])
+        numMinPawns = state.get_pawnsN()[1]
+        numMinKings = state.get_kingsN()[1]
+        totalMinDistToKing = sum([state.disttoking(self.minplayer, numRow) for numRow in range(1, 7)])
 
         utility = (numMaxPawns + (numMaxKings * 10)) - totalMaxDistToKing
         utility -= (numMinPawns + (numMinKings * 10)) - totalMinDistToKing
 
-        return utility
+        if player is self.maxplayer:
+            return utility
+        else:
+            return -utility
 
     def alpha_beta_search(self, node):
-        # Alpha-beta pruning minimax search, separate function or class
+        # Alpha-beta pruning minimax search
         """
             v = max_val(state, alpha=-infinity, beta=+infinity)
             return action in actions(state) with value v
         """
-
         v = self.max_val(node, alpha=-float("inf"), beta=float("inf"))
 
         return [action for action in node.state.get_actions(self.maxplayer)
-                if self.utility(node.state.move(action)) == v][0]
+                if self.utility(node.state.move(action), self.maxplayer) == v]
 
     def max_val(self, node, alpha, beta):
         """
-            state is a Checkboard
+            state is a Checkerboard
             if terminal(state) then v = utility(state)
             else
                 v = -infinity
@@ -71,18 +72,19 @@ class Strategy(abstractstrategy.Strategy):
             return v
         """
         if node.state.is_terminal():
-            return self.utility(node.state)
+            return self.utility(node.state, self.maxplayer)
         else:
             v = -float("inf")
-            for action in node.state.get_actions(self.maxplayer):
-                v = max(v, self.min_val(node.state, alpha, beta), alpha, beta)
-                if v >= beta:
-                    break
-                else:
-                    alpha = max(alpha, v)
+            if node.depth <= self.maxplies:
+                for action in node.state.get_actions(self.maxplayer):
+                    v = max(v, self.min_val(node.state, alpha, beta), alpha, beta)
+                    if v >= beta:
+                        break
+                    else:
+                        alpha = max(alpha, v)
         return v
 
-    def min_val(self, state, alpha, beta):
+    def min_val(self, node, alpha, beta):
         """
             state is a Checkerboard!
             if terminal(state) then v = utility(state)
@@ -93,21 +95,22 @@ class Strategy(abstractstrategy.Strategy):
                     if v <= alpha then break else beta = min(beta, v)
             return v
         """
-        if state.is_terminal():
-            return self.utility(state)
+        if node.state.is_terminal():
+            return self.utility(node.state, self.minplayer)
         else:
             v = float("inf")
-            for action in state.get_actions(self.maxplayer):
-                v = min(v, self.max_val(state, alpha, beta), alpha, beta)
-                if v <= alpha:
-                    break
-                else:
-                    alpha = min(beta, v)
+            if node.depth <= self.maxplies:
+                for action in node.state.get_actions(self.maxplayer):
+                    v = min(v, self.max_val(node.state, alpha, beta), alpha, beta)
+                    if v <= alpha:
+                        break
+                    else:
+                        alpha = min(beta, v)
         return v
 
 
 class Node:
-    """state is a Checkboard"""
+    """state is a Checkerboard"""
 
     def __init__(self, state, parent=None, action=None):
         self.parent = parent
