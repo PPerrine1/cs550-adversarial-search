@@ -15,36 +15,36 @@ class Strategy(abstractstrategy.Strategy):
         if actions:
             currNode = Node(board)
             while currNode.depth <= self.maxplies:
-                currNode = Node(currNode.state, currNode, alpha_beta_search(currNode))
+                currNode = Node(currNode.state, currNode, self.alpha_beta_search(currNode))
         else:
             action = []  # No possible actions
 
         # Execute AI move
-        if not action:
+        if not actions:
             newboard = board
         else:
-            newboard = board.move(action)
+            newboard = board.move(actions)
         return newboard, action
 
     def utility(self, state):
         """state is a Checkerboard"""
-        #minimize distance to kings
-        #maximize number of pawns and kings
-        #num Kings is more important than num Pawns
+        # minimize distance to kings
+        # maximize number of pawns and kings
+        # num Kings is more important than num Pawns
 
         numMaxPawns = state.get_PawnsN()[self.maxplayer]
         numMaxKings = state.get_KingsN()[self.maxplayer]
 
-        totalMaxDistToKing = [state.distoking(self.maxplayer, numRow) for numRow in range(0,state.edgesize - 1)]
+        totalMaxDistToKing = sum([state.distoking(self.maxplayer, numRow) for numRow in range(0, state.edgesize - 1)])
 
         numMinPawns = state.get_PawnsN()[self.minplayer]
         numMinKings = state.get_KingsN()[self.minplayer]
 
-        totalMinDistToKing = [state.distoking(self.minplayer, numRow) for numRow in range(0,state.edgesize - 1)]
+        totalMinDistToKing = sum([state.distoking(self.minplayer, numRow) for numRow in range(0, state.edgesize - 1)])
 
-        utility = (numMaxPawns + (numMaxKings*10)) - totalMaxDistToKing
-        utility -= (numMinPawns + (numMinKings*10)) - totalMinDistToKing
-        
+        utility = (numMaxPawns + (numMaxKings * 10)) - totalMaxDistToKing
+        utility -= (numMinPawns + (numMinKings * 10)) - totalMinDistToKing
+
         return utility
 
     def alpha_beta_search(self, node):
@@ -53,30 +53,29 @@ class Strategy(abstractstrategy.Strategy):
             v = max_val(state, alpha=-infinity, beta=+infinity)
             return action in actions(state) with value v
         """
-        
-        v = self.max_val(node.state, alpha=-float("inf"), beta=float("inf"))
-        
+
+        v = self.max_val(node, alpha=-float("inf"), beta=float("inf"))
+
         return [action for action in node.state.get_actions(self.maxplayer)
                 if self.utility(node.state.move(action)) == v][0]
 
-    def max_val(self, state, alpha, beta):
-        # TODO
+    def max_val(self, node, alpha, beta):
         """
             state is a Checkboard
             if terminal(state) then v = utility(state)
             else
                 v = -infinity
                 for a in actions(state)
-                    v = max_val(v, min_val(result(state, a), alpha, beta)
+                    v = max_val(v, min_val(result(state, a)), alpha, beta)
                     if v >= beta then break else alpha = max(alpha, v)
             return v
         """
-        if state.is_terminal():
-            return self.utility(state)
+        if node.state.is_terminal():
+            return self.utility(node.state)
         else:
             v = -float("inf")
-            for a in actions(state.get_actions(self.maxplayer)):
-                v = self.max_val(state, min_val(state, alpha, beta), alpha, beta)
+            for action in node.state.get_actions(self.maxplayer):
+                v = max(v, self.min_val(node.state, alpha, beta), alpha, beta)
                 if v >= beta:
                     break
                 else:
@@ -98,8 +97,8 @@ class Strategy(abstractstrategy.Strategy):
             return self.utility(state)
         else:
             v = float("inf")
-            for a in actions(state.get_actions(self.maxplayer)):
-                v = self.min_val(state, max_val(state, alpha, beta), alpha, beta)
+            for action in state.get_actions(self.maxplayer):
+                v = min(v, self.max_val(state, alpha, beta), alpha, beta)
                 if v <= alpha:
                     break
                 else:
