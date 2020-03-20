@@ -6,15 +6,16 @@ import abstractstrategy
 
 
 class Strategy(abstractstrategy.Strategy):
-    # TODO
+    """ """
 
     def play(self, board):
+        """ """
 
         actions = board.get_actions(self.maxplayer)
 
         if actions:
-            currNode = Node(board)
-            ai_action = self.alpha_beta_search(currNode)[0]
+            ai_action = self.alpha_beta_search(Node(board))[0]
+            print(ai_action)
         else:
             ai_action = []  # No possible actions
 
@@ -24,30 +25,8 @@ class Strategy(abstractstrategy.Strategy):
             print("AI not making move")
         else:
             newboard = board.move(ai_action)
-            print("AI making move:",ai_action[0])
+            print("AI making move:", ai_action[0])
         return newboard, ai_action
-
-    def utility(self, state, player):
-        """state is a Checkerboard"""
-        # minimize distance to kings
-        # maximize number of pawns and kings
-        # num Kings is more important than num Pawns
-
-        numMaxPawns = state.get_pawnsN()[0]
-        numMaxKings = state.get_kingsN()[0]
-        totalMaxDistToKing = sum([state.disttoking(self.maxplayer, numRow) for numRow in range(1, 7)])
-
-        numMinPawns = state.get_pawnsN()[1]
-        numMinKings = state.get_kingsN()[1]
-        totalMinDistToKing = sum([state.disttoking(self.minplayer, numRow) for numRow in range(1, 7)])
-
-        utility = (numMaxPawns + (numMaxKings * 10)) - totalMaxDistToKing
-        utility -= (numMinPawns + (numMinKings * 10)) - totalMinDistToKing
-
-        if player is self.maxplayer:
-            return utility
-        else:
-            return -utility
 
     def alpha_beta_search(self, node):
         # Alpha-beta pruning minimax search
@@ -55,14 +34,13 @@ class Strategy(abstractstrategy.Strategy):
             v = max_val(state, alpha=-infinity, beta=+infinity)
             return action in actions(state) with value v
         """
-        v = self.max_val(node, alpha=-float("inf"), beta=float("inf"))
+        v, leafNode = self.max_val(node, alpha=-float("inf"), beta=float("inf"))
+        print("v =", v)
 
-        return [action for action in node.state.get_actions(self.maxplayer)
-                if self.utility(node.state.move(action), self.maxplayer) == v]
+        return leafNode.solution()
 
     def max_val(self, node, alpha, beta):
         """
-            state is a Checkerboard
             if terminal(state) then v = utility(state)
             else
                 v = -infinity
@@ -71,18 +49,18 @@ class Strategy(abstractstrategy.Strategy):
                     if v >= beta then break else alpha = max(alpha, v)
             return v
         """
-        if node.state.is_terminal():
-            return self.utility(node.state, self.maxplayer)
+        if node.state.is_terminal()[0] or node.depth == self.maxplies:
+            return self.utility(node.state), node
         else:
             v = -float("inf")
-            if node.depth <= self.maxplies:
-                for action in node.state.get_actions(self.maxplayer):
-                    v = max(v, self.min_val(node.state, alpha, beta), alpha, beta)
-                    if v >= beta:
-                        break
-                    else:
-                        alpha = max(alpha, v)
-        return v
+            for action in node.state.get_actions(self.maxplayer):
+                new_v, leafNode = self.min_val(Node(node.state.move(action), parent=node, action=action), alpha, beta)
+                v = max(v, new_v)
+                if v >= beta:
+                    break
+                else:
+                    alpha = max(alpha, v)
+        return v, leafNode
 
     def min_val(self, node, alpha, beta):
         """
@@ -95,18 +73,40 @@ class Strategy(abstractstrategy.Strategy):
                     if v <= alpha then break else beta = min(beta, v)
             return v
         """
-        if node.state.is_terminal():
-            return self.utility(node.state, self.minplayer)
+        if node.state.is_terminal()[0] or node.depth == self.maxplies:
+            return self.utility(node.state), node
         else:
             v = float("inf")
-            if node.depth <= self.maxplies:
-                for action in node.state.get_actions(self.maxplayer):
-                    v = min(v, self.max_val(node.state, alpha, beta), alpha, beta)
-                    if v <= alpha:
-                        break
-                    else:
-                        alpha = min(beta, v)
-        return v
+            for action in node.state.get_actions(self.minplayer):
+                new_v, leafNode = self.max_val(Node(node.state.move(action), parent=node, action=action), alpha, beta)
+                v = min(v, new_v)
+                if v <= alpha:
+                    break
+                else:
+                    alpha = min(beta, v)
+        return v, leafNode
+
+    def utility(self, state):
+        """state is a Checkerboard"""
+        # minimize distance to kings
+        # maximize number of pawns and kings
+        # num Kings is more important than num Pawns
+        pidx = state.playeridx(self.maxplayer)
+
+        numMaxPawns = state.get_pawnsN()[pidx]
+        numMaxKings = state.get_kingsN()[pidx]
+        sumMaxDist = sum([state.disttoking(self.maxplayer, idx[0])
+                          for idx in enumerate(state.get_actions(self.maxplayer))])
+
+        numMinPawns = state.get_pawnsN()[1 - pidx]
+        numMinKings = state.get_kingsN()[1 - pidx]
+        sumMinDist = sum([state.disttoking(self.minplayer, idx[0])
+                          for idx in enumerate(state.get_actions(self.minplayer))])
+
+        utility = numMaxPawns*5 + numMaxKings*10 + sumMaxDist
+        utility -= numMinPawns*5 + numMinKings*10 + sumMinDist
+
+        return utility
 
 
 class Node:
@@ -115,28 +115,23 @@ class Node:
     def __init__(self, state, parent=None, action=None):
         self.parent = parent
         self.state = state
-        self.action = action
         if parent:
             self.depth = parent.depth + 1
-            if not action:
-                raise ValueError("No Actions")
         else:
             self.depth = 0
-
-    def expand(self):
-        raise NotImplemented
-
-    def child_node(self):
-        raise NotImplemented
+        if action:
+            self.action = action
+        else:
+            self.action = 0
 
     def solution(self):
-        raise NotImplemented
-
-    def path(self):
-        raise NotImplemented
-
-
-"""From ReadMe:
-    You are to implement class Strategy in the file ai.py (respect case as we may test on a case-sensitive system). You
-    will need to design an alpha-beta pruning minimax search and utility function. The utility function is a subclass
-    of Strategy, and the alpha-beta search is a separate function or class. Both must be contained within AI.py. """
+        """Return the list of actions to reach this node"""
+        node, path = self, []
+        # Chase parent pointers, appending each node as it is found
+        while node:
+            path.append(node.action)
+            node = node.parent
+        # List is from goal to initial state,
+        # reverse to provide initial state to goal
+        path.reverse()
+        return path[1:]

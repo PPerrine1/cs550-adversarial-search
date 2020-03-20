@@ -53,8 +53,8 @@ def Game(red=human.Strategy, black=tonto.Strategy,
 
     game_board = checkerboard.CheckerBoard()
 
-    red = ai.Strategy('r', game_board, maxplies)
-    black = tonto.Strategy('b', game_board, maxplies)
+    red = red('r', game_board, maxplies)
+    black = black('b', game_board, maxplies)
 
     while not game_board.is_terminal()[0]:
         print(game_board)
@@ -69,4 +69,4 @@ if __name__ == "__main__":
     # Game(init=boardlibrary.boards["multihop"])
     # Game(init=boardlibrary.boards["StrategyTest1"])
     # Game(init=boardlibrary.boards["EndGame1"], firstmove = 1)
-    Game()
+    Game(red=ai.Strategy, maxplies=10)
