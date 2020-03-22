@@ -88,23 +88,23 @@ class Strategy(abstractstrategy.Strategy):
 
     def utility(self, state):
         """state is a Checkerboard"""
-        # minimize distance to kings
-        # maximize number of pawns and kings
-        # num Kings is more important than num Pawns
         pidx = state.playeridx(self.maxplayer)
 
         numMaxPawns = state.get_pawnsN()[pidx]
         numMaxKings = state.get_kingsN()[pidx]
-        sumMaxDist = sum([state.disttoking(self.maxplayer, idx[0])
-                          for idx in enumerate(state.get_actions(self.maxplayer))])
-
         numMinPawns = state.get_pawnsN()[1 - pidx]
         numMinKings = state.get_kingsN()[1 - pidx]
-        sumMinDist = sum([state.disttoking(self.minplayer, idx[0])
-                          for idx in enumerate(state.get_actions(self.minplayer))])
 
-        utility = numMaxPawns*5 + numMaxKings*10 + sumMaxDist
-        utility -= numMinPawns*5 + numMinKings*10 + sumMinDist
+        sumMaxDist = sum([state.disttoking() for row, col, piece in state
+                          if state.identifypiece(piece) == (self.maxplayer, False)])
+        sumMinDist = sum([state.disttoking() for row, col, piece in state
+                          if state.identifypiece(piece) == (self.minplayer, False)])
+
+        exposedMaxKingTile = sum([state.isempty(7, col) for col in range(0, 8, 2)])
+        exposedMinKingTile = sum([state.isempty(0, col) for col in range(1, 8, 2)])
+
+        utility = numMaxPawns*5 + numMaxKings*10 - sumMaxDist - exposedMaxKingTile*50
+        utility -= numMinPawns*5 + numMinKings*10 - sumMinDist - exposedMinKingTile
 
         return utility
 

@@ -31,6 +31,7 @@ import human
 import ai
 
 import boardlibrary  # might be useful for debugging
+import startlibrary  # library of starting moves
 
 from timer import Timer
 
@@ -49,6 +50,7 @@ def Game(red=human.Strategy, black=tonto.Strategy,
     # Don't forget to create instances of your strategy,
     # e.g. black('b', checkerboard.CheckerBoard, maxplies)
     boardlibrary.init_boards()
+    startlibrary.init_starts()
     t = Timer()
 
     game_board = checkerboard.CheckerBoard()
