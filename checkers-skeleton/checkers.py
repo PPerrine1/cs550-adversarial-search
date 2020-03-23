@@ -31,13 +31,12 @@ import human
 import ai
 
 import boardlibrary  # might be useful for debugging
-import startlibrary  # library of starting moves
 
 from timer import Timer
 
 
-def Game(red=human.Strategy, black=tonto.Strategy,
-         maxplies=10, init=None, verbose=True, firstmove=0):
+def Game(red=ai.Strategy, black=tonto.Strategy,
+         init=None, maxplies=10, verbose=True, firstmove=0):
     """Game(red, black, maxplies, init, verbose, turn)
     Start a game of checkers
     red,black - Strategy classes (not instances)
@@ -47,28 +46,31 @@ def Game(red=human.Strategy, black=tonto.Strategy,
     firstmove - Player N starts 0 (red) or 1 (black).  Default 0. 
     """
 
-    # Don't forget to create instances of your strategy,
-    # e.g. black('b', checkerboard.CheckerBoard, maxplies)
     boardlibrary.init_boards()
-    startlibrary.init_starts()
     t = Timer()
 
-    game_board = checkerboard.CheckerBoard()
+    if init:
+        game_board = init
+    else:
+        game_board = checkerboard.CheckerBoard()
 
     red = red('r', game_board, maxplies)
     black = black('b', game_board, maxplies)
 
-    while not game_board.is_terminal()[0]:
-        print(game_board)
-        game_board = red.play(game_board)[0]
-        print(game_board)
+    if firstmove:
         game_board = black.play(game_board)[0]
 
-    # raise NotImplementedError("Needs a game to play")
+    while not game_board.is_terminal()[0]:
+        game_board = red.play(game_board)[0]
+        if verbose:
+            print(game_board)
+        game_board = black.play(game_board)[0]
+        if verbose:
+            print(game_board)
 
 
 if __name__ == "__main__":
     # Game(init=boardlibrary.boards["multihop"])
     # Game(init=boardlibrary.boards["StrategyTest1"])
     # Game(init=boardlibrary.boards["EndGame1"], firstmove = 1)
-    Game(red=ai.Strategy, maxplies=10)
+    Game(red=ai.Strategy, maxplies=10, verbose=True, firstmove=0)
