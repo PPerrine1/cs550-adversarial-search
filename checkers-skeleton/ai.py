@@ -204,10 +204,26 @@ class Strategy(abstractstrategy.Strategy):
         numMinKings = state.get_kingsN()[1 - pidx]
 
         # calculate the distance of each pawn to the king row
-        sumMaxDist = sum([state.disttoking(self.maxplayer, row) for row, col, piece in state
-                          if state.identifypiece(piece) == (pidx, False)])
-        sumMinDist = sum([state.disttoking(self.minplayer, row) for row, col, piece in state
-                          if state.identifypiece(piece) == (1 - pidx, False)])
+        for i, row in enumerate(state.board):
+            for j, col in enumerate(state.board[i]):
+                if state.board[i][j] and state.board[i][j] != ' ':
+                    piece = state.board[i][j]
+                    playerid, king = state.identifypiece(piece)
+
+                    if playerid == pidx and not king:
+                        utility -= state.disttoking(self.maxplayer, i)
+                    elif playerid == 1 - pidx and not king:
+                        utility += state.disttoking(self.minplayer, i)
+
+                    # add bonus points if the piece is surrounded
+                    if 1 <= i <= 6 and 1 <= j <= 6:
+                        surround = [(x, y) for x in range(i - 1, i + 1) for y in range(j - 1, j + 1)]
+                        for tile in surround:
+                            if not state.isempty(tile[0], tile[1]):
+                                if playerid == pidx:
+                                    utility += 1
+                                else:
+                                    utility -= 1
 
         # Calculate the number of tiles in king row that are exposed to opponent for each player
         exposedMaxKingTile = sum([1 for action in state.get_actions(self.maxplayer)
@@ -224,8 +240,8 @@ class Strategy(abstractstrategy.Strategy):
                 utility -= state.isplayer(self.minplayer, piece) * 5
 
         # combine the utilities defined above
-        utility += numMaxPawns * 5 + numMaxKings * 10 - sumMaxDist - exposedMaxKingTile * 5
-        utility -= numMinPawns * 5 + numMinKings * 10 - sumMinDist - exposedMinKingTile * 5
+        utility += numMaxPawns * 5 + numMaxKings * 10 - exposedMaxKingTile * 5
+        utility -= numMinPawns * 5 + numMinKings * 10 - exposedMinKingTile * 5
 
         return int(utility)
 

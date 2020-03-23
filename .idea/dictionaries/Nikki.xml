@@ -3,6 +3,7 @@
     <words>
       <w>firstmove</w>
       <w>maxplies</w>
+      <w>playerid</w>
     </words>
   </dictionary>
 </component>

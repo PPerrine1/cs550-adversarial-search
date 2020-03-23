@@ -145,7 +145,7 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
 
     for i, player in enumerate(players):
         time = mean(move_times[i])
-        print("%s Average move time: %.2f:%.2f:%.2f" % (player, time * 60 * 60, time * 60, time))
+        print("%s Average move time: %d:%d:%d" % (player, time / 60 / 60, time / 60, time))
 
 
 if __name__ == "__main__":
