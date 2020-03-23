@@ -22,6 +22,8 @@ class Strategy(abstractstrategy.Strategy):
             Play function - Determines starting move(s), then conducts
             an alpha-beta search to determine the most optimal move
         """
+
+        print("%s thinking using ai strategy..." % self.maxplayer)
         # Get a list of possible actions from maxplayer
         actions = board.get_actions(self.maxplayer)
 
