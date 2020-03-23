@@ -59,7 +59,6 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
 
     # Print the current board, action taken, piece count, and number of moves
     def printMove():
-        print("Player %s turn" % players[turn])
         if len(action[1]) == 3:
             capture = "Capturing" + str(action[1][1])
             print("Move %s by %s: from %s to %s capturing %s  Result:" %
@@ -104,6 +103,8 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
 
         # Sets timer to determine how many seconds it takes for a player to make a move
         t_move = Timer()
+
+        print("Player %s turn" % players[turn])
 
         # Black player makes a move, then appends move to black moves list
         if turn:
@@ -152,4 +153,4 @@ if __name__ == "__main__":
     # Game(init=boardlibrary.boards["multihop"])
     # Game(init=boardlibrary.boards["StrategyTest1"])
     # Game(init=boardlibrary.boards["EndGame1"], firstmove = 1)
-    Game(black=ai.Strategy, red=tonto.Strategy, maxplies=10, verbose=True, firstmove=0)
+    Game(black=ai.Strategy, red=tonto.Strategy, maxplies=10, verbose=True, firstmove=1)
