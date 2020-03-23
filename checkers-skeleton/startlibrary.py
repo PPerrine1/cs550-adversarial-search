@@ -1,11 +1,18 @@
 """
+Filename: startlibrary.py
+
+Contains a list of competitive starting moves for the AI
+to make at the start of the game. These are taken from 
+research on competitive strategies, and have lead to better
+plays from the AI.
+
+CS 550, Spring 2020, Marie Roch
 @author: nmill, pperr
 """
 
 import checkerboard
 
 start = []
-
 
 def init_starts():
     """Set up a list of starting moves"""
@@ -222,6 +229,5 @@ def init_starts():
     b.place(4, 7, 'r')
     b.recount_pieces()  # Update pawn/king counts
     start.append((b, [(5, 2), (4, 3)]))
-
 
 init_starts()
