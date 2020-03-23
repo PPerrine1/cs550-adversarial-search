@@ -215,15 +215,22 @@ class Strategy(abstractstrategy.Strategy):
                     elif playerid == 1 - pidx and not king:
                         utility += state.disttoking(self.minplayer, i)
 
-                    # add bonus points if the piece is surrounded
+                    # add bonus points if the piece is surrounded by same player
+                    # subtract points if the piece is surrounded by opponent
                     if 1 <= i <= 6 and 1 <= j <= 6:
                         surround = [(x, y) for x in range(i - 1, i + 1) for y in range(j - 1, j + 1)]
                         for tile in surround:
                             if not state.isempty(tile[0], tile[1]):
-                                if playerid == pidx:
-                                    utility += 1
+                                if state.board[tile[0]][tile[1]] == playerid:
+                                    if playerid == pidx:
+                                        utility += 1
+                                    else:
+                                        utility -= 1
                                 else:
-                                    utility -= 1
+                                    if playerid == pidx:
+                                        utility -= 1
+                                    else:
+                                        utility += 1
 
         # Calculate the number of tiles in king row that are exposed to opponent for each player
         exposedMaxKingTile = sum([1 for action in state.get_actions(self.maxplayer)
