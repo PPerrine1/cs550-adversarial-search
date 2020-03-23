@@ -112,11 +112,11 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
     if draw:
         print("Game is a draw")
     else:
-        print("The winner is %s!" % player)
+        print("The winner is %s!" % players[not turn])
 
     for i, player in enumerate(players):
         time = mean(move_times[i])
-        print("%s Average move time: %2.0f:%2.0f:%2.0f" % (player, time * 60, time, time / 60))
+        print("%s Average move time: %.2f:%.2f:%.2f" % (player, time * 60 * 60, time * 60, time))
 
 
 if __name__ == "__main__":

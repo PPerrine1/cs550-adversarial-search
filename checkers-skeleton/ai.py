@@ -19,7 +19,7 @@ class Strategy(abstractstrategy.Strategy):
 
     def play(self, board, verbose=False):
         """
-            Play function - Determines starting move(s), then conducts 
+            Play function - Determines starting move(s), then conducts
             an alpha-beta search to determine the most optimal move
         """
         # Get a list of possible actions from maxplayer
@@ -51,14 +51,14 @@ class Strategy(abstractstrategy.Strategy):
         # If there was a valid action found, execute the move
         else:
             newboard = board.move(ai_action)
-        
+
         # Return updated board and the move that was executed
         return newboard, ai_action
 
-    def alpha_beta_search(self, node, verbose=False): 
-        """ 
+    def alpha_beta_search(self, node, verbose=False):
+        """
             Alpha-beta pruning minimax search - Begins by executing the
-            recursive max_val function to derive utility, denoted by v, 
+            recursive max_val function to derive utility, denoted by v,
             as well as the most optimal move to make
 
             Based on the following pseudocode:
@@ -78,7 +78,7 @@ class Strategy(abstractstrategy.Strategy):
 
     def max_val(self, node, alpha, beta):
         """
-            Maximum Value function - Increases the lower bound, 
+            Maximum Value function - Increases the lower bound,
             alpha, of the max nodes
 
             Note: node is essentially the state for this implementation,
@@ -101,8 +101,8 @@ class Strategy(abstractstrategy.Strategy):
         if node.state.is_terminal()[0] or node.depth >= self.maxplies:
             return self.utility(node.state), node
 
-        # Else, iterate through all possible actions, using min_val to generate leaf nodes 
-        # When the utility value meets/exceeds the initial beta value, then break loop  
+        # Else, iterate through all possible actions, using min_val to generate leaf nodes
+        # When the utility value meets/exceeds the initial beta value, then break loop
         else:
             # Initialize utility to be negative infinity
             v = -float("inf")
@@ -113,7 +113,7 @@ class Strategy(abstractstrategy.Strategy):
                 # Creates a new Node to be passed into min_val, assigns current node as new node's parent
                 new_v, leafNode = self.min_val(Node(node.state.move(action), parent=node, action=action),
                                                alpha, beta)
-                
+
                 # Overrides utility value with the greatest of the old or new value
                 v = max(v, new_v)
 
@@ -129,7 +129,7 @@ class Strategy(abstractstrategy.Strategy):
 
     def min_val(self, node, alpha, beta):
         """
-            Minimum Value function - Decreases the lower bound, 
+            Minimum Value function - Decreases the lower bound,
             beta, of the min nodes
 
             Note: node is essentially the state for this implementation,
@@ -151,9 +151,9 @@ class Strategy(abstractstrategy.Strategy):
         # the maxplies value, then return the current utility of the Checkerboard
         if node.state.is_terminal()[0] or node.depth >= self.maxplies:
             return self.utility(node.state), node
-        
-        # Else, iterate through all possible actions, using max_val to generate leaf nodes 
-        # When the utility value meets/falls behind the initial alpha value, then break loop  
+
+        # Else, iterate through all possible actions, using max_val to generate leaf nodes
+        # When the utility value meets/falls behind the initial alpha value, then break loop
         else:
             # Initialize utility to be positive infinity
             v = float("inf")
@@ -164,19 +164,19 @@ class Strategy(abstractstrategy.Strategy):
                 # Creates a new Node to be passed into max_val, assigns current node as new node's parent
                 new_v, leafNode = self.max_val(Node(node.state.move(action), parent=node, action=action),
                                                alpha, beta)
-                
+
                 # Overrides utility value with the least of the old or new value
                 v = min(v, new_v)
 
                 # If the lesser utility value meets/falls behind the lower bound, alpha, then break loop
                 if v <= alpha:
                     break
-                
+
                 # Else, override upper bound, beta, with itself or the utility value (the lesser one)
                 else:
                     beta = min(beta, v)
 
-        # Return the lowest possible utility value and the corresponding leaf node that contains the move            
+        # Return the lowest possible utility value and the corresponding leaf node that contains the move
         return v, leafNode
 
     def utility(self, state):
@@ -187,9 +187,9 @@ class Strategy(abstractstrategy.Strategy):
             Takes a given Checkerboard, state, and determines the current
             utility value of the set-up of the current player
 
-            A higher utility value indicates the greater advantage 
+            A higher utility value indicates the greater advantage
             that the current player has
-        
+
         """
         # Initialize utility value
         utility = 0
@@ -203,7 +203,7 @@ class Strategy(abstractstrategy.Strategy):
         numMinPawns = state.get_pawnsN()[1 - pidx]
         numMinKings = state.get_kingsN()[1 - pidx]
 
-        # Calculate the distance of each pawn to the king row for each player
+        # calculate the distance of each pawn to the king row
         sumMaxDist = sum([state.disttoking(self.maxplayer, row) for row, col, piece in state
                           if state.identifypiece(piece) == (pidx, False)])
         sumMinDist = sum([state.disttoking(self.minplayer, row) for row, col, piece in state
@@ -215,7 +215,7 @@ class Strategy(abstractstrategy.Strategy):
         exposedMinKingTile = sum([1 for action in state.get_actions(self.minplayer)
                                   if action[1][1] == 0 or action[1][1] == 7])
 
-        # Determines how the center is being controlled, increments utility correspondingly 
+        # Determines how the center is being controlled, increments utility correspondingly
         center = ((3, 2), (3, 4), (4, 3), (4, 5))
         for [row, col] in center:
             if state.isempty(row, col) is False:
@@ -223,11 +223,11 @@ class Strategy(abstractstrategy.Strategy):
                 utility += state.isplayer(self.maxplayer, piece) * 5
                 utility -= state.isplayer(self.minplayer, piece) * 5
 
-        # Combine the utilities defined above (both positive and negative attributes of state)
+        # combine the utilities defined above
         utility += numMaxPawns * 5 + numMaxKings * 10 - sumMaxDist - exposedMaxKingTile * 5
         utility -= numMinPawns * 5 + numMinKings * 10 - sumMinDist - exposedMinKingTile * 5
 
-        return utility
+        return int(utility)
 
 
 class Node:
@@ -261,5 +261,5 @@ class Node:
             node = node.parent
         # List is from goal to initial state, reverse to provide initial state to goal
         path.reverse()
-        
+
         return path[1]
