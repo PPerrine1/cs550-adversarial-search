@@ -29,9 +29,8 @@ tonto = imp.load_compiled("tonto", modpath)
 # human - human player, prompts for input
 import human
 import ai
-
 import boardlibrary  # might be useful for debugging
-
+from statistics import mean
 from timer import Timer
 
 
@@ -46,8 +45,27 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
     firstmove - Player N starts 0 (red) or 1 (black).  Default 0. 
     """
 
+    def printMove():
+        print("Player %s turn" % players[turn])
+        if len(action[1]) == 3:
+            capture = "Capturing" + str(action[1][1])
+            print("Move %s by %s: from %s to %s capturing %s  Result:" %
+                  (game_board.movecount, players[turn], action[0],
+                   (action[1][0], action[1][1]), action[1][2]))
+        else:
+            print("Move %s by %s: from %s to %s  Result:" %
+                  (game_board.movecount, players[turn], action[0], action[1]))
+        print(game_board)
+        print("Pawn/King count: r %d R %d b %d B %d  Time - move: %d s, game %.1f min" %
+              (game_board.get_pawnsN()[0], game_board.get_kingsN()[0],
+               game_board.get_pawnsN()[1], game_board.get_kingsN()[1],
+               t_move.elapsed_s(), t_game.elapsed_min()))
+        print("Moves since last capture %d last pawn advance %d" %
+              (game_board.lastcapture, game_board.lastpawnadvance))
+        print()
+
     boardlibrary.init_boards()
-    t = Timer()
+    t_game = Timer()
 
     if init:
         game_board = init
@@ -57,16 +75,48 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
     red = red('r', game_board, maxplies)
     black = black('b', game_board, maxplies)
 
-    if firstmove:
-        game_board = black.play(game_board)[0]
+    print("How about a nice game of checkers?")
+    turn = firstmove
+    players = ['r', 'b']
+    board_states = []
+    r_moves = []
+    b_moves = []
+    move_times = [r_moves, b_moves]
 
     while not game_board.is_terminal()[0]:
-        game_board = red.play(game_board)[0]
+        t_move = Timer()
+        if turn:
+            game_board, action = black.play(game_board)
+            b_moves.append(t_move.elapsed_s())
+        else:
+            game_board, action = red.play(game_board, verbose=True)
+            r_moves.append(t_move.elapsed_s())
+
         if verbose:
-            print(game_board)
-        game_board = black.play(game_board)[0]
-        if verbose:
-            print(game_board)
+            printMove()
+
+        n = 0
+        draw = False
+        for state in board_states:
+            if game_board.board == state:
+                n += 1
+            if n >= 3:
+                draw = True
+                break
+
+        board_states.append(game_board.board)
+        turn = not turn
+
+    print("Final board")
+    print(game_board)
+    if draw:
+        print("Game is a draw")
+    else:
+        print("The winner is %s!" % player)
+
+    for i, player in enumerate(players):
+        time = mean(move_times[i])
+        print("%s Average move time: %2.0f:%2.0f:%2.0f" % (player, time * 60, time, time / 60))
 
 
 if __name__ == "__main__":

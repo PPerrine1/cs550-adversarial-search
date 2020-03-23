@@ -10,21 +10,22 @@ import startlibrary
 class Strategy(abstractstrategy.Strategy):
     """ """
 
-    def play(self, board):
+    def play(self, board, verbose=False):
         """ """
-
         actions = board.get_actions(self.maxplayer)
         startlibrary.init_starts()
         ai_action = None
 
         if actions:
+            # Check to see if the board is at a starting state
             for start in startlibrary.start:
                 if str(board) == str(start[0]):
                     for move in start[1]:
                         if move in actions:
                             ai_action = move
+
             if ai_action is None:
-                ai_action = self.alpha_beta_search(Node(board))
+                ai_action = self.alpha_beta_search(Node(board), verbose=verbose)
         else:
             ai_action = []  # No possible actions
 
@@ -36,16 +37,17 @@ class Strategy(abstractstrategy.Strategy):
             newboard = board.move(ai_action)
         return newboard, ai_action
 
-    def alpha_beta_search(self, node):
+    def alpha_beta_search(self, node, verbose=False):
         # Alpha-beta pruning minimax search
         """
             v = max_val(state, alpha=-infinity, beta=+infinity)
             return action in actions(state) with value v
         """
         v, leafNode = self.max_val(node, alpha=-float("inf"), beta=float("inf"))
-        print("v =", v)
+        if verbose:
+            print("v =", v)
 
-        return leafNode.solution()
+        return leafNode.best_move()
 
     def max_val(self, node, alpha, beta):
         """
@@ -59,7 +61,7 @@ class Strategy(abstractstrategy.Strategy):
         """
         leafNode = None
 
-        if node.state.is_terminal()[0] or node.depth == self.maxplies:
+        if node.state.is_terminal()[0] or node.depth >= self.maxplies:
             return self.utility(node.state), node
         else:
             v = -float("inf")
@@ -87,7 +89,7 @@ class Strategy(abstractstrategy.Strategy):
         """
         leafNode = None
 
-        if node.state.is_terminal()[0] or node.depth == self.maxplies:
+        if node.state.is_terminal()[0] or node.depth >= self.maxplies:
             return self.utility(node.state), node
         else:
             v = float("inf")
@@ -103,6 +105,8 @@ class Strategy(abstractstrategy.Strategy):
 
     def utility(self, state):
         """state is a Checkerboard"""
+        # initialize utility
+        utility = 0
 
         # identify max player
         pidx = state.playeridx(self.maxplayer)
@@ -114,18 +118,28 @@ class Strategy(abstractstrategy.Strategy):
         numMinKings = state.get_kingsN()[1 - pidx]
 
         # calculate the distance of each pawn to the king row
-        sumMaxDist = sum([state.disttoking() for row, col, piece in state
-                          if state.identifypiece(piece) == (self.maxplayer, False)])
-        sumMinDist = sum([state.disttoking() for row, col, piece in state
-                          if state.identifypiece(piece) == (self.minplayer, False)])
+        sumMaxDist = sum([state.disttoking(self.maxplayer, row) for row, col, piece in state
+                          if state.identifypiece(piece) == (pidx, False)])
+        sumMinDist = sum([state.disttoking(self.minplayer, row) for row, col, piece in state
+                          if state.identifypiece(piece) == (1 - pidx, False)])
 
-        # calculate the number of tiles in king row that are exposed
-        exposedMaxKingTile = sum([state.isempty(7, col) for col in range(0, 8, 2)])
-        exposedMinKingTile = sum([state.isempty(0, col) for col in range(1, 8, 2)])
+        # calculate the number of tiles in king row that are exposed to opponent
+        exposedMaxKingTile = sum([1 for action in state.get_actions(self.maxplayer)
+                                  if action[1][1] == 0 or action[1][1] == 7])
+        exposedMinKingTile = sum([1 for action in state.get_actions(self.minplayer)
+                                  if action[1][1] == 0 or action[1][1] == 7])
+
+        # control the center
+        center = ((3, 2), (3, 4), (4, 3), (4, 5))
+        for [row, col] in center:
+            if state.isempty(row, col) is False:
+                piece = state.board[row][col]
+                utility += state.isplayer(self.maxplayer, piece) * 5
+                utility -= state.isplayer(self.minplayer, piece) * 5
 
         # combine the utilities defined above
-        utility = numMaxPawns * 5 + numMaxKings * 10 - sumMaxDist - exposedMaxKingTile * 10
-        utility -= numMinPawns * 5 + numMinKings * 10 - sumMinDist - exposedMinKingTile * 10
+        utility += numMaxPawns * 5 + numMaxKings * 10 - sumMaxDist - exposedMaxKingTile * 5
+        utility -= numMinPawns * 5 + numMinKings * 10 - sumMinDist - exposedMinKingTile * 5
 
         return utility
 
@@ -145,7 +159,7 @@ class Node:
         else:
             self.action = 0
 
-    def solution(self):
+    def best_move(self):
         """Return the list of actions to reach this node"""
         node, path = self, []
         # Chase parent pointers, appending each node as it is found
