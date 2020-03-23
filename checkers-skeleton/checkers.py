@@ -112,7 +112,7 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
         
         # Red player makes a move, then appends move to red moves list
         else:
-            game_board, action = red.play(game_board, verbose=True)
+            game_board, action = red.play(game_board)
             r_moves.append(t_move.elapsed_s())
 
         # If logging is enabled, then print the move made by the player
@@ -152,4 +152,4 @@ if __name__ == "__main__":
     # Game(init=boardlibrary.boards["multihop"])
     # Game(init=boardlibrary.boards["StrategyTest1"])
     # Game(init=boardlibrary.boards["EndGame1"], firstmove = 1)
-    Game(red=ai.Strategy, maxplies=10, verbose=True, firstmove=0)
+    Game(black=ai.Strategy, red=tonto.Strategy, maxplies=10, verbose=True, firstmove=0)
